@@ -15,9 +15,9 @@
 #define MAX_FOOD 500
 
 
-int p1score;
-int p2score;
 int speed;
+int p1score = 0;
+int p2score = 0;
 
 struct P1_Data
 {
@@ -40,9 +40,12 @@ struct P2_Data
 } Player2;
 
 
-void gamephysics ()
+int gamephysics ()
 {
  int i, input;
+ int winner = 0;
+ Player1.futurepixel = 0;
+ Player2.futurepixel = 0;
  
  Player1.futurex = Player1.head_x;
  Player1.futurey = Player1.head_y;
@@ -98,58 +101,26 @@ void gamephysics ()
  {
   setcolor (15);
   outtextxy(((SCREEN_W-50)/2), (SCREEN_H/2), "Draw!");
+  winner = 3;
   delay (3000);
-/*  setcolor (15);
-  outtextxy(((SCREEN_W-75)/2), (SCREEN_H/2), "Play again? y/n");
-  for (i=0; i < 3000; i++)
-   {
-     if (kbhit())
-     {
-      input = getch ();
-       
-      if(input == 121 || input == 89)
-       {
-        int main();
-       }
-      if(input == 110 || input == 78)
-       {
-        exit(1);
-       }
-     }
-   delay(500);
-   }
-   */
-  exit(1);
  }
  
   else if (Player1.futurepixel != 0)
  {
   setcolor (6);
   outtextxy(((SCREEN_W-100)/2), (SCREEN_H/2), "Player 1 wins!");
-  p1score ++;
+  winner = 1;
   delay (3000);
-  exit(1);
  }
 
   else if (Player2.futurepixel != 0)
  {
   setcolor (4);
   outtextxy(((SCREEN_W-100)/2), (SCREEN_H/2), "Player 2 wins!");
-  p2score ++;
+  winner = 2;
   delay (3000);
-  exit(1);
  }
- 
-/* if (futurepixel == 2)
- {
-  setcolor(0);
-  setfillstyle (0,0);
-  bar (11, SCREEN_H - 20 , SCREEN_W - 20, SCREEN_H);
-  setcolor (4);
-  sprintf (scorestring, "Score : %d", score);
-  outtextxy (20, (SCREEN_H - 25), scorestring);
- }
- */
+ return (winner);
 }
 
 
@@ -261,22 +232,15 @@ void movesnake()
      
 }
 
-void gameengine()
-{
- while (1)
- {
-  movesnake();
-  userinput();
-  gamephysics();
-  delay(speed);       
- }
-}
 
 void initscreen()
 {
  int i;
  char scorestring[100];
  
+ setcolor(0);
+ setfillstyle (0,0);
+ bar (0, 0, SCREEN_W, SCREEN_H);
  setcolor(15);
  line (10, 10, 10, (SCREEN_H - 30));
  line ((SCREEN_W -10), 10, (SCREEN_W - 10), (SCREEN_H - 30));
@@ -295,13 +259,17 @@ void initscreen()
  putpixel(Player2.head_x, Player2.head_y, 6);
  
  setcolor (15);
- outtextxy (330, 475, "3");
+ outtextxy (330, 150, "3");
  delay(700); 
- outtextxy (330, 475, "2");
+ outtextxy (330, 150, "2");
  delay(700); 
- outtextxy (330, 475, "1");
+ outtextxy (330, 150, "1");
  delay(700); 
- outtextxy (330, 475, "GO!");
+ outtextxy (325, 150, "GO!");
+ delay(700);
+ setcolor(0);
+ setfillstyle (0,0);
+ bar (310, 140, 350, 170);
  delay(speed);
 }     
 
@@ -322,13 +290,55 @@ void initgamedata()
  
 }
 
+void gameengine()
+{
+int again = 1;
+int winner = 0;
+int input, i;
+
+ while (again == 1)
+ {
+  initgamedata();
+  initscreen();
+  winner = 0;
+  while (winner == 0)
+  {
+   movesnake();
+   userinput();
+   winner = gamephysics();
+   delay(speed);       
+  }
+  if (winner == 1)
+  {
+   p1score ++;
+  }
+  if (winner == 2)
+  {
+   p2score ++;
+  }
+  setcolor (15);
+  outtextxy(((SCREEN_W-110)/2), (30+SCREEN_H/2), "Play again? y/n");
+  input = 0;
+  while (input != 121 && input != 89 && input != 110 && input != 78)
+  {
+   input = getch ();
+   if(input == 121 || input == 89)
+   {
+    again = 1;
+   }
+   if(input == 110 || input == 78)
+   {
+    again = 0;
+   }
+  }
+ }
+}
+
 int main()
 {
  initwindow(SCREEN_W, SCREEN_H, "Light Bike 1.0");
- initgamedata();
- initscreen();
  gameengine();
-
+ 
  return(0);
 }
 
